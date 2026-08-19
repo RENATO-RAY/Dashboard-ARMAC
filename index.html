@@ -315,6 +315,55 @@
   .filter-summary{ font-size:12.5px; color:var(--muted); display:flex; align-items:center; gap:8px; }
   .filter-clear-all{ font-size:12px; color:var(--blue-link); cursor:pointer; font-weight:600; background:none; border:none; padding:0; font-family:'Inter',sans-serif; }
   .filter-clear-all:hover{ text-decoration:underline; }
+
+  /* ABAS (Geral / Locação / Seminovos) */
+  .tabs-bar{ display:flex; gap:26px; margin-top:22px; border-bottom:1px solid var(--border); }
+  .tab-btn{
+    font-family:'Poppins',sans-serif; font-weight:600; font-size:13.5px;
+    color:var(--muted); background:none; border:none; cursor:pointer;
+    padding:0 2px 11px; position:relative; top:1px;
+    border-bottom:2.5px solid transparent; transition:color .15s ease, border-color .15s ease;
+  }
+  .tab-btn:hover{ color:var(--navy); }
+  .tab-btn.active{ color:var(--navy); border-bottom-color:var(--navy); }
+  .tab-btn .tab-count{ font-weight:600; color:var(--muted-2); font-size:11.5px; margin-left:4px; }
+  .tab-btn.active .tab-count{ color:var(--navy); }
+
+  /* BOTÕES TOGGLE Armac / Concorrentes */
+  .toggle-btn-filter{
+    display:flex; align-items:center; gap:7px;
+    background:var(--bg); border:1px solid var(--border); border-radius:10px;
+    padding:9px 14px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:700; color:var(--text);
+    transition:background .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .toggle-btn-filter .dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .toggle-btn-filter:hover{ border-color:var(--muted-2); }
+  .toggle-btn-filter.active[data-group="armac"]{ background:var(--navy); border-color:var(--navy); color:#fff; }
+  .toggle-btn-filter.active[data-group="concorrente"]{ background:var(--green); border-color:var(--green); color:#fff; }
+  .toggle-btn-filter.active .dot{ background:#fff; }
+  .filters-sep{ width:1px; align-self:stretch; background:var(--border); margin:2px 2px; }
+
+  /* Tabela ordenável */
+  thead th.sortable{ cursor:pointer; user-select:none; }
+  thead th.sortable:hover{ color:var(--navy); }
+  thead th .sort-arrow{ display:inline-block; margin-left:4px; font-size:10px; color:var(--muted-2); }
+  thead th.sorted-asc .sort-arrow, thead th.sorted-desc .sort-arrow{ color:var(--navy); }
+
+  /* Comparativo Armac x Concorrentes */
+  .compare-item{ margin-bottom:15px; }
+  .compare-item:last-child{ margin-bottom:0; }
+  .compare-item .cmp-head{ display:flex; justify-content:space-between; align-items:baseline; font-size:12.5px; font-weight:700; color:var(--text); margin-bottom:6px; }
+  .compare-item .cmp-delta{ font-size:11.5px; font-weight:700; padding:1px 8px; border-radius:100px; }
+  .compare-row{ display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+  .compare-row .cmp-label{ font-size:11px; color:var(--muted); width:82px; flex-shrink:0; font-weight:600; }
+  .compare-row .cmp-track{ flex:1; height:9px; background:var(--bg); border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+  .compare-row .cmp-fill{ height:100%; border-radius:6px; }
+  .compare-row .cmp-val{ font-size:12px; font-weight:700; width:32px; text-align:right; flex-shrink:0; font-variant-numeric:tabular-nums; }
+
+  .gauge-compare{ margin-top:14px; width:100%; display:flex; flex-direction:column; gap:6px; }
+  .gauge-compare-row{ display:flex; justify-content:space-between; align-items:center; font-size:12px; padding:6px 10px; border-radius:8px; background:var(--bg); }
+  .gauge-compare-row b{ font-variant-numeric:tabular-nums; }
+  .gauge-delta-badge{ margin-top:4px; font-size:11.5px; font-weight:700; padding:5px 14px; border-radius:100px; text-align:center; }
 </style>
 </head>
 <body>
@@ -333,7 +382,20 @@
   <h1>Painel de Acompanhamento das Respostas</h1>
   <div class="subtitle">Avaliação da abordagem comercial da Armac e dos concorrentes mapeados (Locação e Seminovos), consolidando as notas de 1 a 5 coletadas a cada rodada do cliente oculto.</div>
 
+  <div class="tabs-bar" role="tablist">
+    <button type="button" class="tab-btn active" data-tab="Geral" role="tab">Geral <span class="tab-count" id="tabCountGeral"></span></button>
+    <button type="button" class="tab-btn" data-tab="Locação" role="tab">Locação <span class="tab-count" id="tabCountLocacao"></span></button>
+    <button type="button" class="tab-btn" data-tab="Seminovos" role="tab">Seminovos <span class="tab-count" id="tabCountSeminovos"></span></button>
+  </div>
+
   <div class="filters-bar">
+    <button type="button" class="toggle-btn-filter" id="armacToggleBtn" data-group="armac">
+      <span class="dot" style="background:var(--navy)"></span> Armac
+    </button>
+    <button type="button" class="toggle-btn-filter" id="concorrenteToggleBtn" data-group="concorrente">
+      <span class="dot" style="background:var(--green)"></span> Concorrentes
+    </button>
+    <div class="filters-sep"></div>
     <div class="filter-dropdown" id="empresaDropdown">
       <button type="button" class="filter-toggle" id="empresaToggle">
         <span class="filter-label">Empresa</span>
@@ -394,7 +456,7 @@
         </div>
         <div class="gauge-value" id="gaugeValue">–<span>/5</span></div>
         <div class="gauge-label" id="gaugeLabel">0 respostas coletadas</div>
-        <div class="gauge-status" id="gaugeStatus">SEM DADOS</div>
+        <div class="gauge-compare" id="gaugeCompare"></div>
       </div>
     </div>
 
@@ -412,8 +474,8 @@
       <div id="barWrap"></div>
     </div>
     <div class="card">
-      <h2>Evolução ao Longo das Respostas</h2>
-      <div id="trendWrap"></div>
+      <h2>Armac × Concorrentes por Categoria</h2>
+      <div id="compareWrap"></div>
     </div>
   </div>
 
@@ -424,15 +486,16 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>Data / Hora</th>
-            <th>Empresa</th>
-            <th>Vendedor</th>
-            <th>Tempo Resp.</th>
-            <th>Facilidade</th>
-            <th>Diagnóstico</th>
-            <th>Atendimento</th>
-            <th>Material</th>
-            <th>Média</th>
+            <th class="sortable" data-key="timestamp">Data / Hora<span class="sort-arrow">⇅</span></th>
+            <th class="sortable" data-key="empresa">Empresa<span class="sort-arrow">⇅</span></th>
+            <th class="sortable" data-key="vendedor">Vendedor<span class="sort-arrow">⇅</span></th>
+            <th class="sortable" data-key="tipo">Tipo<span class="sort-arrow">⇅</span></th>
+            <th class="sortable" data-key="Tempo de Resposta">Tempo Resp.<span class="sort-arrow">⇅</span></th>
+            <th class="sortable" data-key="Facilidade e Condução">Facilidade<span class="sort-arrow">⇅</span></th>
+            <th class="sortable" data-key="Diagnóstico">Diagnóstico<span class="sort-arrow">⇅</span></th>
+            <th class="sortable" data-key="Atendimento e Empatia">Atendimento<span class="sort-arrow">⇅</span></th>
+            <th class="sortable" data-key="Material e Follow-up">Material<span class="sort-arrow">⇅</span></th>
+            <th class="sortable" data-key="overall">Média<span class="sort-arrow">⇅</span></th>
             <th></th>
           </tr>
         </thead>
@@ -491,23 +554,30 @@ const SHEET_CSV_URL = ''; // ex.: 'https://docs.google.com/spreadsheets/d/e/XXXX
 
 /* ---------- Dados incorporados (planilha "Acompanhamento de Desempenho – Armac") ---------- */
 const EMBEDDED_RESPONSES = [
-  {timestamp:'2026-08-14 16:09:51', empresa:'Sotreq',        vendedor:'Gabriel',                         scores:[3.5,3.5,3.5,3.5,5.0,5.0,4.5,4.5,4.5,4.5]},
-  {timestamp:'2026-08-14 16:11:43', empresa:'Mills',         vendedor:'Débora',                          scores:[2.5,2.5,3.0,3.0,3.5,3.5,5.0,5.0,1.0,1.0]},
-  {timestamp:'2026-08-14 16:17:43', empresa:'Brasif',        vendedor:'Jair',                            scores:[2.5,2.5,3.0,3.0,3.0,3.0,4.0,4.0,1.0,1.0]},
-  {timestamp:'2026-08-14 16:19:26', empresa:'Vamos Locação', vendedor:'Não informado',                   scores:[1.5,1.5,3.0,3.0,3.0,3.0,2.5,2.5,1.0,1.0]},
-  {timestamp:'2026-08-14 16:22:00', empresa:'Localiza',      vendedor:'Rafaela',                         scores:[1.0,1.0,1.5,1.5,1.0,1.0,2.5,2.5,1.0,1.0]},
-  {timestamp:'2026-08-19 08:28:41', empresa:'Armac',         vendedor:'Mauro Ferreira',                  scores:[1.0,1.0,3.0,2.0,4.0,5.0,3.0,2.0,'N/A',1.0]},
-  {timestamp:'2026-08-19 08:29:59', empresa:'Armac',         vendedor:'Loja - São José dos Campos',      scores:[1.0,'N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A']},
-  {timestamp:'2026-08-19 08:31:45', empresa:'Armac',         vendedor:'Rodrigo - Presidente Prudente',   scores:[1.0,5.0,2.0,5.0,5.0,5.0,4.0,4.0,5.0,5.0]},
-  {timestamp:'2026-08-19 08:33:01', empresa:'Armac',         vendedor:'Loja - Americana',                scores:[1.0,'N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A']},
-  {timestamp:'2026-08-19 08:33:52', empresa:'Armac',         vendedor:'Loja - Santos',                   scores:[2.0,'N/A','N/A',5.0,'N/A','N/A','N/A','N/A','N/A','N/A']},
-  {timestamp:'2026-08-19 08:35:10', empresa:'Armac',         vendedor:'Loja - Cotia',                    scores:[1.0,'N/A','N/A',5.0,'N/A','N/A','N/A','N/A','N/A','N/A']},
-  {timestamp:'2026-08-19 08:37:55', empresa:'Armac',         vendedor:'Lorivaldo Souza',                 scores:[3.0,3.0,5.0,5.0,2.0,4.0,4.0,5.0,'N/A','N/A']},
+  {timestamp:'2026-08-14 16:09:51', empresa:'Sotreq',        vendedor:'Gabriel',                         tipo:'Locação',   isArmac:false, scores:[3.5,3.5,3.5,3.5,5.0,5.0,4.5,4.5,4.5,4.5]},
+  {timestamp:'2026-08-14 16:11:43', empresa:'Mills',         vendedor:'Débora',                          tipo:'Locação',   isArmac:false, scores:[2.5,2.5,3.0,3.0,3.5,3.5,5.0,5.0,1.0,1.0]},
+  {timestamp:'2026-08-14 16:17:43', empresa:'Brasif',        vendedor:'Jair',                            tipo:'Locação',   isArmac:false, scores:[2.5,2.5,3.0,3.0,3.0,3.0,4.0,4.0,1.0,1.0]},
+  {timestamp:'2026-08-14 16:19:26', empresa:'Vamos Locação', vendedor:'Não informado',                   tipo:'Locação',   isArmac:false, scores:[1.5,1.5,3.0,3.0,3.0,3.0,2.5,2.5,1.0,1.0]},
+  {timestamp:'2026-08-14 16:22:00', empresa:'Localiza',      vendedor:'Rafaela',                         tipo:'Locação',   isArmac:false, scores:[1.0,1.0,1.5,1.5,1.0,1.0,2.5,2.5,1.0,1.0]},
+  {timestamp:'2026-08-19 08:28:41', empresa:'Armac',         vendedor:'Mauro Ferreira',                  tipo:'Locação',   isArmac:true,  scores:[1.0,1.0,3.0,2.0,4.0,5.0,3.0,2.0,'N/A',1.0]},
+  {timestamp:'2026-08-19 08:29:59', empresa:'Armac',         vendedor:'Loja - São José dos Campos',      tipo:'Locação',   isArmac:true,  scores:[1.0,'N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A']},
+  {timestamp:'2026-08-19 08:31:45', empresa:'Armac',         vendedor:'Rodrigo - Presidente Prudente',   tipo:'Seminovos', isArmac:true,  scores:[1.0,5.0,2.0,5.0,5.0,5.0,4.0,4.0,5.0,5.0]},
+  {timestamp:'2026-08-19 08:33:01', empresa:'Armac',         vendedor:'Loja - Americana',                tipo:'Locação',   isArmac:true,  scores:[1.0,'N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A']},
+  {timestamp:'2026-08-19 08:33:52', empresa:'Armac',         vendedor:'Loja - Santos',                   tipo:'Locação',   isArmac:true,  scores:[2.0,'N/A','N/A',5.0,'N/A','N/A','N/A','N/A','N/A','N/A']},
+  {timestamp:'2026-08-19 08:35:10', empresa:'Armac',         vendedor:'Loja - Cotia',                    tipo:'Locação',   isArmac:true,  scores:[1.0,'N/A','N/A',5.0,'N/A','N/A','N/A','N/A','N/A','N/A']},
+  {timestamp:'2026-08-19 08:37:55', empresa:'Armac',         vendedor:'Lorivaldo Souza',                 tipo:'Locação',   isArmac:true,  scores:[3.0,3.0,5.0,5.0,2.0,4.0,4.0,5.0,'N/A','N/A']},
 ];
 
 let allResponses = EMBEDDED_RESPONSES.slice();
 let responses = allResponses.slice();
 let dataSource = 'embutido';
+
+/* Estado dos filtros */
+let activeTab = 'Geral';              // 'Geral' | 'Locação' | 'Seminovos'
+let armacOnly = false;                // botão "Armac" ativo
+let concorrenteOnly = false;          // botão "Concorrentes" ativo
+let sortKey = null;                   // coluna atualmente ordenada na tabela
+let sortDir = 'asc';                  // 'asc' | 'desc'
 
 /* ---------- Helpers ----------
    Regra de N/A: qualquer valor que não seja um número entre 1 e 5 é
@@ -564,12 +634,34 @@ function renderGauge(){
   document.getElementById('needle').style.transform = `rotate(${angle}deg)`;
   document.getElementById('gaugeValue').innerHTML = (n && overallAvg!==null ? overallAvg.toFixed(1) : '–') + '<span>/5</span>';
   document.getElementById('gaugeLabel').textContent = n + (n===1?' resposta coletada':' respostas coletadas');
-  const st = n ? statusOf(overallAvg) : {label:'SEM DADOS', color:'#8A90A0', bg:'transparent'};
-  const badge = document.getElementById('gaugeStatus');
-  badge.textContent = st.label;
-  badge.style.color = st.color;
-  badge.style.background = st.bg;
-  badge.style.border = '1px solid ' + (n? st.color : '#E4E7EE');
+
+  // Comparativo Armac x Concorrência: sempre calculado sobre a mesma base
+  // (aba + Empresa/Vendedor), independente dos botões de atalho Armac/Concorrentes,
+  // para servir de referência estável (é o que dá sentido à nota acima).
+  const base = getComparisonBase();
+  const armacAvg = avg(base.filter(r=>r.isArmac).map(overallOf));
+  const concAvg = avg(base.filter(r=>!r.isArmac).map(overallOf));
+
+  const compareEl = document.getElementById('gaugeCompare');
+  if(armacAvg===null && concAvg===null){
+    compareEl.innerHTML = '';
+  } else {
+    let deltaBadge = '';
+    if(armacAvg!==null && concAvg!==null){
+      const delta = armacAvg - concAvg;
+      const isTie = Math.abs(delta) < 0.05;
+      const color = isTie ? '#8A90A0' : (delta>0 ? '#00A742' : '#D6473F');
+      const bg = isTie ? '#F1F3F7' : (delta>0 ? '#E3F7EA' : '#FBEAE9');
+      const label = isTie ? 'ARMAC EMPATADA COM A CONCORRÊNCIA'
+        : (delta>0 ? `ARMAC ${delta.toFixed(1)} ACIMA DA CONCORRÊNCIA` : `ARMAC ${Math.abs(delta).toFixed(1)} ABAIXO DA CONCORRÊNCIA`);
+      deltaBadge = `<div class="gauge-delta-badge" style="color:${color}; background:${bg};">${label}</div>`;
+    }
+    compareEl.innerHTML = `
+      <div class="gauge-compare-row"><span>Armac</span><b style="color:var(--navy)">${fmt(armacAvg)}</b></div>
+      <div class="gauge-compare-row"><span>Concorrência</span><b style="color:var(--green)">${fmt(concAvg)}</b></div>
+      ${deltaBadge}
+    `;
+  }
 }
 
 /* ---------- Render: category stat chips ---------- */
@@ -674,65 +766,64 @@ function renderBar(){
 }
 
 /* ---------- Render: Trend (SVG puro) ---------- */
-function renderTrend(){
-  const wrap = document.getElementById('trendWrap');
-  const n = responses.length;
-  if(!n){ wrap.innerHTML = '<div class="chart-empty">Sem dados para exibir ainda.</div>'; return; }
+function getComparisonBase(){
+  return getTabScopedResponses().filter(r =>
+    (selectedEmpresas.size===0 || selectedEmpresas.has(r.empresa)) &&
+    (selectedVendedores.size===0 || selectedVendedores.has(r.vendedor))
+  );
+}
 
-  const W=560, H=230, padL=28, padR=14, padT=14, padB=26;
-  const chartW = W-padL-padR, chartH = H-padT-padB;
-  const xFor = i => n===1 ? padL+chartW/2 : padL + (chartW*i/(n-1));
-  const yFor = v => padT + chartH*(1 - v/5);
+function groupCategoryAvg(rows, cat){
+  return rows.length ? avg(rows.map(r=>categoryAverages(r)[cat])) : null;
+}
 
-  let grid = '', gridLabels = '';
-  for(let v=0; v<=5; v++){
-    const y = yFor(v);
-    grid += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#EEF0F4" stroke-width="1"/>`;
-    gridLabels += `<text x="${padL-6}" y="${y+3}" text-anchor="end" font-size="9.5" fill="#8A90A0" font-family="Inter">${v}</text>`;
+/* ---------- Render: Comparativo Armac x Concorrentes por Categoria ---------- */
+function renderCompare(){
+  const wrap = document.getElementById('compareWrap');
+  const base = getComparisonBase();
+  const armacRows = base.filter(r=>r.isArmac);
+  const concRows = base.filter(r=>!r.isArmac);
+
+  if(!armacRows.length && !concRows.length){
+    wrap.innerHTML = '<div class="chart-empty">Sem dados para comparar ainda.</div>';
+    return;
   }
 
-  const series = [{name:'Média geral', color:'#002A9A', values:responses.map(r=>overallOf(r)), main:true}]
-    .concat(CATEGORIES.map(cat=>({name:CAT_SHORT[cat], color:CAT_COLORS[cat], values:responses.map(r=>categoryAverages(r)[cat]), main:false})));
-
-  let paths='';
-  series.forEach(s=>{
-    if(n>1){
-      // quebra a linha em segmentos contínuos, pulando pontos sem dado (null)
-      let segment = [];
-      const flushSegment = () => {
-        if(segment.length>1){
-          const pts = segment.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
-          paths += `<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="${s.main?3:1.5}" stroke-dasharray="${s.main?'none':'4 3'}" stroke-linecap="round" stroke-linejoin="round"/>`;
-        }
-        segment = [];
-      };
-      s.values.forEach((v,i)=>{
-        if(v===null){ flushSegment(); return; }
-        segment.push({x:xFor(i), y:yFor(v)});
-      });
-      flushSegment();
+  const html = CATEGORIES.map(cat=>{
+    const aVal = groupCategoryAvg(armacRows, cat);
+    const cVal = groupCategoryAvg(concRows, cat);
+    let deltaHtml = '';
+    if(aVal!==null && cVal!==null){
+      const delta = aVal - cVal;
+      const isTie = Math.abs(delta) < 0.05;
+      const deltaColor = isTie ? '#8A90A0' : (delta>0 ? '#00A742' : '#D6473F');
+      const deltaLabel = isTie ? 'Empatados' : (delta>0 ? `Armac +${delta.toFixed(1)}` : `Concorrência +${Math.abs(delta).toFixed(1)}`);
+      deltaHtml = `<span class="cmp-delta" style="color:${deltaColor}; background:${deltaColor}1A;">${deltaLabel}</span>`;
+    } else if(aVal===null && cVal!==null){
+      deltaHtml = `<span class="cmp-delta" style="color:#8A90A0; background:#F1F3F7;">Sem dado Armac</span>`;
+    } else if(cVal===null && aVal!==null){
+      deltaHtml = `<span class="cmp-delta" style="color:#8A90A0; background:#F1F3F7;">Sem dado concorrência</span>`;
     }
-    if(s.main){
-      paths += s.values.map((v,i)=>v===null?'':`<circle cx="${xFor(i).toFixed(1)}" cy="${yFor(v).toFixed(1)}" r="4" fill="${s.color}" stroke="#fff" stroke-width="1.5"/>`).join('');
-    }
-  });
+    return `
+      <div class="compare-item">
+        <div class="cmp-head"><span>${cat}</span>${deltaHtml}</div>
+        <div class="compare-row">
+          <span class="cmp-label">Armac</span>
+          <div class="cmp-track"><div class="cmp-fill" style="width:${aVal===null?0:(aVal/5*100)}%; background:var(--navy);"></div></div>
+          <span class="cmp-val">${fmt(aVal)}</span>
+        </div>
+        <div class="compare-row">
+          <span class="cmp-label">Concorrência</span>
+          <div class="cmp-track"><div class="cmp-fill" style="width:${cVal===null?0:(cVal/5*100)}%; background:var(--green);"></div></div>
+          <span class="cmp-val">${fmt(cVal)}</span>
+        </div>
+      </div>`;
+  }).join('');
 
-  let xLabels = '';
-  responses.forEach((r,i)=>{
-    xLabels += `<text x="${xFor(i).toFixed(1)}" y="${H-6}" text-anchor="middle" font-size="9.5" fill="#8A90A0" font-family="Inter">R${i+1}</text>`;
-  });
-
-  const legend = series.map(s=>`
-    <div class="legend-item"><span class="legend-swatch" style="background:${s.color}"></span>${s.name}</div>
-  `).join('');
-
-  wrap.innerHTML = `
-    <svg viewBox="0 0 ${W} ${H}" width="100%">
-      ${grid}${gridLabels}${paths}${xLabels}
-    </svg>
-    <div class="legend">${legend}</div>
-    ${n<2 ? '<div class="chart-empty" style="padding-top:6px;">Tendência ficará mais clara conforme novas respostas forem coletadas.</div>' : ''}
-  `;
+  wrap.innerHTML = html + `<div class="legend" style="margin-top:2px;">
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--navy)"></span>Armac (${armacRows.length} resp.)</div>
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--green)"></span>Concorrência (${concRows.length} resp.)</div>
+  </div>`;
 }
 
 /* ---------- Render: chip + table ---------- */
@@ -740,6 +831,48 @@ function chipHtml(v){
   const st = statusOf(v);
   return `<span class="score-chip" style="color:${st.color}; background:${st.bg}">${fmt(v)}</span>`;
 }
+
+/* ---------- Ordenação da tabela (clique no cabeçalho) ---------- */
+function getSortValue(r, key){
+  if(key==='timestamp'){ const t = new Date(r.timestamp.replace(' ','T')).getTime(); return Number.isFinite(t) ? t : 0; }
+  if(key==='empresa') return (r.empresa||'').toLowerCase();
+  if(key==='vendedor') return (r.vendedor||'').toLowerCase();
+  if(key==='tipo') return (r.tipo||'').toLowerCase();
+  if(key==='overall'){ const v = overallOf(r); return v===null ? -Infinity : v; }
+  const v = categoryAverages(r)[key];
+  return v===null ? -Infinity : v;
+}
+function sortResponses(){
+  responses.sort((a,b)=>{
+    const va = getSortValue(a, sortKey), vb = getSortValue(b, sortKey);
+    let cmp = (typeof va === 'string') ? va.localeCompare(vb, 'pt-BR') : (va - vb);
+    return sortDir === 'asc' ? cmp : -cmp;
+  });
+}
+function updateSortIndicators(){
+  document.querySelectorAll('#responsesTable thead th.sortable').forEach(th=>{
+    th.classList.remove('sorted-asc','sorted-desc');
+    const arrow = th.querySelector('.sort-arrow');
+    if(th.dataset.key === sortKey){
+      th.classList.add(sortDir==='asc' ? 'sorted-asc' : 'sorted-desc');
+      arrow.textContent = sortDir==='asc' ? '▲' : '▼';
+    } else {
+      arrow.textContent = '⇅';
+    }
+  });
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.querySelectorAll('#responsesTable thead th.sortable').forEach(th=>{
+    th.addEventListener('click', ()=>{
+      const key = th.dataset.key;
+      if(sortKey === key){ sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+      else { sortKey = key; sortDir = 'asc'; }
+      sortResponses();
+      renderTable();
+      updateSortIndicators();
+    });
+  });
+});
 
 function renderTable(){
   const body = document.getElementById('tableBody');
@@ -751,11 +884,13 @@ function renderTable(){
     const cats = categoryAverages(r);
     const overall = overallOf(r);
     const tr = document.createElement('tr');
+    const tipoBadgeColor = r.tipo === 'Seminovos' ? '#DB9A1F' : '#395BF3';
     tr.innerHTML = `
       <td>${i+1}</td>
       <td style="color:var(--muted); font-size:12.5px;">${formatDate(r.timestamp)}</td>
       <td><b>${r.empresa||'—'}</b></td>
       <td style="color:var(--muted);">${r.vendedor||'—'}</td>
+      <td><span style="font-size:11.5px; font-weight:700; color:${tipoBadgeColor};">${r.tipo||'—'}</span></td>
       <td>${chipHtml(cats['Tempo de Resposta'])}</td>
       <td>${chipHtml(cats['Facilidade e Condução'])}</td>
       <td>${chipHtml(cats['Diagnóstico'])}</td>
@@ -774,7 +909,7 @@ function renderTable(){
       const isNA = parseScore(raw) === null;
       return `<div>${c.label}: <b style="${isNA?'color:#8A90A0':''}">${isNA?'N/A':raw}</b></div>`;
     }).join('');
-    detail.innerHTML = `<td colspan="11"><div class="mini-crit">${critHtml}</div></td>`;
+    detail.innerHTML = `<td colspan="12"><div class="mini-crit">${critHtml}</div></td>`;
     body.appendChild(detail);
   });
 
@@ -786,6 +921,7 @@ function renderTable(){
       btn.textContent = row.classList.contains('open') ? 'Ocultar' : 'Detalhar';
     });
   });
+  updateSortIndicators();
 }
 
 function renderLastUpdated(){
@@ -795,7 +931,25 @@ function renderLastUpdated(){
   el.textContent = 'Última resposta: ' + formatDate(last);
 }
 
-/* ---------- Filtros (Empresa e Vendedor, multi-seleção) ---------- */
+/* ---------- Abas (Geral / Locação / Seminovos) ---------- */
+function getTabScopedResponses(){
+  return activeTab === 'Geral' ? allResponses.slice() : allResponses.filter(r=>r.tipo===activeTab);
+}
+function updateTabCounts(){
+  document.getElementById('tabCountGeral').textContent    = '('+allResponses.length+')';
+  document.getElementById('tabCountLocacao').textContent  = '('+allResponses.filter(r=>r.tipo==='Locação').length+')';
+  document.getElementById('tabCountSeminovos').textContent= '('+allResponses.filter(r=>r.tipo==='Seminovos').length+')';
+}
+function setActiveTab(tab){
+  activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  populateFilters();
+  applyFilters();
+}
+
+/* ---------- Filtros (Armac/Concorrentes + Empresa e Vendedor, multi-seleção) ---------- */
 let selectedEmpresas = new Set();
 let selectedVendedores = new Set();
 
@@ -803,13 +957,13 @@ function uniqueSorted(arr){
   return [...new Set(arr.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
 }
 
-function renderFilterOptions(containerId, options, selectedSet, kind){
+function renderFilterOptions(containerId, options, selectedSet, kind, scoped){
   const el = document.getElementById(containerId);
-  if(!options.length){ el.innerHTML = '<div class="filter-empty">Nenhuma opção disponível.</div>'; return; }
+  if(!options.length){ el.innerHTML = '<div class="filter-empty">Nenhuma opção disponível nesta aba.</div>'; return; }
   el.innerHTML = options.map(opt=>{
     const safeId = kind+'-opt-'+opt.replace(/[^a-zA-Z0-9]/g,'_');
     const checked = selectedSet.has(opt) ? 'checked' : '';
-    const n = allResponses.filter(r => (kind==='empresa' ? r.empresa : r.vendedor) === opt).length;
+    const n = scoped.filter(r => (kind==='empresa' ? r.empresa : r.vendedor) === opt).length;
     return `<label class="filter-option" for="${safeId}">
       <input type="checkbox" id="${safeId}" data-kind="${kind}" data-value="${opt.replace(/"/g,'&quot;')}" ${checked}>
       <span class="opt-label">${opt}</span><span class="count">${n}</span>
@@ -828,24 +982,32 @@ function updateFilterToggleLabels(){
     : selectedVendedores.size + ' selecionados';
 
   const summary = document.getElementById('filterSummary');
-  const total = allResponses.length, showing = responses.length;
-  const hasFilter = selectedEmpresas.size>0 || selectedVendedores.size>0;
+  const total = getTabScopedResponses().length, showing = responses.length;
+  const hasFilter = selectedEmpresas.size>0 || selectedVendedores.size>0 || armacOnly || concorrenteOnly;
   summary.innerHTML = hasFilter
     ? `Mostrando ${showing} de ${total} respostas <button type="button" class="filter-clear-all" id="clearAllFilters">Limpar filtros</button>`
     : `Mostrando todas as ${total} respostas`;
+
+  document.getElementById('armacToggleBtn').classList.toggle('active', armacOnly);
+  document.getElementById('concorrenteToggleBtn').classList.toggle('active', concorrenteOnly);
 }
 
 function populateFilters(){
-  renderFilterOptions('empresaOptions', uniqueSorted(allResponses.map(r=>r.empresa)), selectedEmpresas, 'empresa');
-  renderFilterOptions('vendedorOptions', uniqueSorted(allResponses.map(r=>r.vendedor)), selectedVendedores, 'vendedor');
+  const scoped = getTabScopedResponses();
+  renderFilterOptions('empresaOptions', uniqueSorted(scoped.map(r=>r.empresa)), selectedEmpresas, 'empresa', scoped);
+  renderFilterOptions('vendedorOptions', uniqueSorted(scoped.map(r=>r.vendedor)), selectedVendedores, 'vendedor', scoped);
   updateFilterToggleLabels();
+  updateTabCounts();
 }
 
 function applyFilters(){
-  responses = allResponses.filter(r =>
+  responses = getTabScopedResponses().filter(r =>
     (selectedEmpresas.size===0 || selectedEmpresas.has(r.empresa)) &&
-    (selectedVendedores.size===0 || selectedVendedores.has(r.vendedor))
+    (selectedVendedores.size===0 || selectedVendedores.has(r.vendedor)) &&
+    (!armacOnly || r.isArmac) &&
+    (!concorrenteOnly || !r.isArmac)
   );
+  if(sortKey) sortResponses();
   renderAll();
 }
 
@@ -868,6 +1030,21 @@ document.addEventListener('click', (e)=>{
 });
 
 document.addEventListener('DOMContentLoaded', ()=>{
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> setActiveTab(btn.dataset.tab));
+  });
+
+  document.getElementById('armacToggleBtn').addEventListener('click', ()=>{
+    armacOnly = !armacOnly;
+    if(armacOnly) concorrenteOnly = false; // evita estado redundante (os dois ativos = igual a nenhum)
+    applyFilters(); updateFilterToggleLabels();
+  });
+  document.getElementById('concorrenteToggleBtn').addEventListener('click', ()=>{
+    concorrenteOnly = !concorrenteOnly;
+    if(concorrenteOnly) armacOnly = false;
+    applyFilters(); updateFilterToggleLabels();
+  });
+
   document.getElementById('empresaToggle').addEventListener('click', (e)=>{ e.stopPropagation(); toggleDropdown('empresa'); });
   document.getElementById('vendedorToggle').addEventListener('click', (e)=>{ e.stopPropagation(); toggleDropdown('vendedor'); });
 
@@ -875,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     e.stopPropagation();
     const action = e.target.closest('.filter-action');
     if(action){
-      if(action.dataset.action==='all') uniqueSorted(allResponses.map(r=>r.empresa)).forEach(v=>selectedEmpresas.add(v));
+      if(action.dataset.action==='all') uniqueSorted(getTabScopedResponses().map(r=>r.empresa)).forEach(v=>selectedEmpresas.add(v));
       else selectedEmpresas.clear();
       applyFilters(); populateFilters(); return;
     }
@@ -890,7 +1067,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     e.stopPropagation();
     const action = e.target.closest('.filter-action');
     if(action){
-      if(action.dataset.action==='all') uniqueSorted(allResponses.map(r=>r.vendedor)).forEach(v=>selectedVendedores.add(v));
+      if(action.dataset.action==='all') uniqueSorted(getTabScopedResponses().map(r=>r.vendedor)).forEach(v=>selectedVendedores.add(v));
       else selectedVendedores.clear();
       applyFilters(); populateFilters(); return;
     }
@@ -904,6 +1081,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.body.addEventListener('click', (e)=>{
     if(e.target.id === 'clearAllFilters'){
       selectedEmpresas.clear(); selectedVendedores.clear();
+      armacOnly = false; concorrenteOnly = false;
       applyFilters(); populateFilters();
     }
   });
@@ -935,15 +1113,18 @@ function parseCSV(text){
 }
 
 // Converte as linhas do CSV (mesmas colunas do formulário: Carimbo, Empresa,
-// Nome do Vendedor, 10 critérios) para o formato usado pelo painel.
+// Nome do Vendedor, 10 critérios, Informe a operação, Loja pertence a ARMAC?)
+// para o formato usado pelo painel.
 function csvRowsToResponses(rows){
   if(!rows.length) return [];
   const body = rows.slice(1); // pula cabeçalho
-  return body.filter(r=>r.length>=13 && r[0]).map(r=>({
+  return body.filter(r=>r.length>=15 && r[0]).map(r=>({
     timestamp: r[0],
     empresa: r[1] || '—',
     vendedor: r[2] || '—',
     scores: r.slice(3, 13),
+    tipo: (r[13]||'').trim(),
+    isArmac: /^sim/i.test((r[14]||'').trim()),
   }));
 }
 
@@ -973,7 +1154,7 @@ function renderAll(){
   renderStats();
   renderRadar();
   renderBar();
-  renderTrend();
+  renderCompare();
   renderTable();
   renderLastUpdated();
   renderSourceNote();
