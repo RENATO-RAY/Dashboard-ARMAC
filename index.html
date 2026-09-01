@@ -426,6 +426,21 @@
       </div>
     </div>
 
+    <div class="filter-dropdown" id="lojaDropdown">
+      <button type="button" class="filter-toggle" id="lojaToggle">
+        <span class="filter-label">Loja</span>
+        <span class="filter-value" id="lojaToggleValue">Todas</span>
+        <svg class="chev" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="filter-panel" id="lojaPanel">
+        <div class="filter-panel-actions">
+          <button type="button" class="filter-action" data-action="all">Selecionar todas</button>
+          <button type="button" class="filter-action" data-action="clear">Limpar</button>
+        </div>
+        <div class="filter-options" id="lojaOptions"></div>
+      </div>
+    </div>
+
     <div class="filter-summary" id="filterSummary"></div>
   </div>
 </header>
@@ -553,19 +568,31 @@ const CAT_SHORT = {
 const SHEET_CSV_URL = ''; // ex.: 'https://docs.google.com/spreadsheets/d/e/XXXXX/pub?gid=0&single=true&output=csv'
 
 /* ---------- Dados incorporados (planilha "Acompanhamento de Desempenho – Armac") ---------- */
+/* Campos de horário (Primeiro Contato / Consultor) aceitam dois formatos:
+   - "DD/MM HH:MM" (ou "DD/MM/AAAA HH:MM") — RECOMENDADO a partir de 31/08/2026.
+     Permite calcular o gap corretamente mesmo quando a resposta veio dias depois.
+   - "HH:MM" — formato antigo, mantido por retrocompatibilidade com respostas já
+     coletadas. Só calcula gap automaticamente se as duas respostas caírem no
+     mesmo dia; do contrário, usar o campo manual "gapNote" na própria linha
+     (ver exemplos: Mauro Ferreira, Bruno → Lailson) para registrar o gap real
+     sem precisar reabrir o formulário. */
 const EMBEDDED_RESPONSES = [
-  {timestamp:'2026-08-14 16:09:51', empresa:'Sotreq',        vendedor:'Gabriel',                         tipo:'Locação',   isArmac:false, scores:[3.5,3.5,3.5,3.5,5.0,5.0,4.5,4.5,4.5,4.5]},
-  {timestamp:'2026-08-14 16:11:43', empresa:'Mills',         vendedor:'Débora',                          tipo:'Locação',   isArmac:false, scores:[2.5,2.5,3.0,3.0,3.5,3.5,5.0,5.0,1.0,1.0]},
-  {timestamp:'2026-08-14 16:17:43', empresa:'Brasif',        vendedor:'Jair',                            tipo:'Seminovos', isArmac:false, scores:[2.5,2.5,3.0,3.0,3.0,3.0,4.0,4.0,1.0,1.0]},
-  {timestamp:'2026-08-14 16:19:26', empresa:'Vamos Locação', vendedor:'Não informado',                   tipo:'Locação',   isArmac:false, scores:[1.5,1.5,3.0,3.0,3.0,3.0,2.5,2.5,1.0,1.0]},
-  {timestamp:'2026-08-14 16:22:00', empresa:'Localiza',      vendedor:'Rafaela',                         tipo:'Seminovos', isArmac:false, scores:[1.0,1.0,1.5,1.5,1.0,1.0,2.5,2.5,1.0,1.0]},
-  {timestamp:'2026-08-19 08:28:41', empresa:'Armac',         vendedor:'Mauro Ferreira',                  tipo:'Locação',   isArmac:true,  scores:[1.0,1.0,3.0,2.0,4.0,5.0,3.0,2.0,'N/A',1.0]},
-  {timestamp:'2026-08-19 08:29:59', empresa:'Armac',         vendedor:'Loja - São José dos Campos',      tipo:'Locação',   isArmac:true,  scores:[1.0,'N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A']},
-  {timestamp:'2026-08-19 08:31:45', empresa:'Armac',         vendedor:'Rodrigo - Presidente Prudente',   tipo:'Seminovos', isArmac:true,  scores:[1.0,5.0,2.0,5.0,5.0,5.0,4.0,4.0,5.0,5.0]},
-  {timestamp:'2026-08-19 08:33:01', empresa:'Armac',         vendedor:'Loja - Americana',                tipo:'Locação',   isArmac:true,  scores:[1.0,'N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A']},
-  {timestamp:'2026-08-19 08:33:52', empresa:'Armac',         vendedor:'Loja - Santos',                   tipo:'Locação',   isArmac:true,  scores:[2.0,'N/A','N/A',5.0,'N/A','N/A','N/A','N/A','N/A','N/A']},
-  {timestamp:'2026-08-19 08:35:10', empresa:'Armac',         vendedor:'Loja - Cotia',                    tipo:'Locação',   isArmac:true,  scores:[1.0,'N/A','N/A',5.0,'N/A','N/A','N/A','N/A','N/A','N/A']},
-  {timestamp:'2026-08-19 08:37:55', empresa:'Armac',         vendedor:'Lorivaldo Souza',                 tipo:'Locação',   isArmac:true,  scores:[3.0,3.0,5.0,5.0,2.0,4.0,4.0,5.0,'N/A','N/A']},
+  {timestamp:'2026-08-14 16:09:51', empresa:'Sotreq',        vendedor:'Gabriel',                         tipo:'Locação',   isArmac:false, loja:null, primeiroContatoTime:'11/08 09:31', consultorTime:'12/08 14:44', scores:[3.5,3.5,3.5,3.5,5.0,5.0,4.5,4.5,4.5,4.5]},
+  {timestamp:'2026-08-14 16:11:43', empresa:'Mills',         vendedor:'Débora',                          tipo:'Locação',   isArmac:false, loja:null, primeiroContatoTime:'13/08 15:01', consultorTime:null, scores:[2.5,2.5,3.0,3.0,3.5,3.5,5.0,5.0,1.0,1.0]},
+  {timestamp:'2026-08-14 16:17:43', empresa:'Brasif',        vendedor:'Jair',                            tipo:'Seminovos', isArmac:false, loja:null, primeiroContatoTime:'11/08 14:31', consultorTime:'11/08 14:31', scores:[2.5,2.5,3.0,3.0,3.0,3.0,4.0,4.0,1.0,1.0]},
+  {timestamp:'2026-08-14 16:19:26', empresa:'Vamos Locação', vendedor:'Não informado',                   tipo:'Locação',   isArmac:false, loja:null, primeiroContatoTime:'12/08 16:34', consultorTime:'12/08 16:34', scores:[1.5,1.5,3.0,3.0,3.0,3.0,2.5,2.5,1.0,1.0]},
+  {timestamp:'2026-08-14 16:22:00', empresa:'Localiza',      vendedor:'Rafaela',                         tipo:'Seminovos', isArmac:false, loja:null, primeiroContatoTime:'13/08 09:02', consultorTime:null, scores:[1.0,1.0,1.5,1.5,1.0,1.0,2.5,2.5,1.0,1.0]},
+  {timestamp:'2026-08-19 08:28:41', empresa:'Armac',         vendedor:'Mauro Ferreira',                  tipo:'Locação',   isArmac:true,  loja:null, primeiroContatoTime:'17:24', consultorTime:'13:45', gapNote:'~44h (Mauro só respondeu 2 dias depois)', scores:[1.0,1.0,3.0,2.0,4.0,5.0,3.0,2.0,'N/A',1.0]},
+  {timestamp:'2026-08-19 08:29:59', empresa:'Armac',         vendedor:'São José dos Campos (Luciana→Sheila)', tipo:'Locação',   isArmac:true,  loja:'São José dos Campos', primeiroContatoTime:'12:38', consultorTime:'12:38', scores:[1.0,1.0,4.0,5.0,2.0,3.0,2.0,4.0,2.0,1.0]},
+  {timestamp:'2026-08-19 17:24:00', empresa:'Tracbel',       vendedor:'Marcos',                          tipo:'Seminovos', isArmac:false, loja:null, primeiroContatoTime:null, consultorTime:null, scores:[5.0,5.0,5.0,5.0,4.0,4.0,4.0,4.0,4.0,3.0]},
+  {timestamp:'2026-08-19 17:23:00', empresa:'Tracbel',       vendedor:'Bruno → Lailson',                 tipo:'Seminovos', isArmac:false, loja:null, primeiroContatoTime:'17:23', consultorTime:'10:27', gapNote:'~17h (Lailson só assumiu no dia seguinte)', scores:[5.0,4.0,5.0,2.0,1.0,2.0,3.0,4.0,1.0,1.0]},
+  {timestamp:'2026-08-19 17:30:00', empresa:'Cordeiro Tratores', vendedor:'Não informado',               tipo:'Seminovos', isArmac:false, loja:null, primeiroContatoTime:null, consultorTime:null, scores:[2.0,1.0,5.0,1.0,1.0,1.0,1.0,2.0,1.0,1.0]},
+  {timestamp:'2026-08-19 08:31:45', empresa:'Armac',         vendedor:'Rodrigo - Presidente Prudente',   tipo:'Seminovos', isArmac:true,  loja:'Presidente Prudente', primeiroContatoTime:'14:17', consultorTime:'16:08', scores:[1.0,5.0,2.0,5.0,5.0,5.0,4.0,4.0,5.0,5.0]},
+  {timestamp:'2026-08-19 08:33:01', empresa:'Armac',         vendedor:'Loja - Americana',                tipo:'Locação',   isArmac:true,  loja:'Americana', primeiroContatoTime:null, consultorTime:null, scores:[1.0,'N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A']},
+  {timestamp:'2026-08-19 08:33:52', empresa:'Armac',         vendedor:'Loja - Santos',                   tipo:'Locação',   isArmac:true,  loja:'Santos', primeiroContatoTime:'08:27', consultorTime:null, scores:[2.0,'N/A','N/A',5.0,'N/A','N/A','N/A','N/A','N/A','N/A']},
+  {timestamp:'2026-08-19 08:35:10', empresa:'Armac',         vendedor:'Loja - Cotia',                    tipo:'Locação',   isArmac:true,  loja:'Cotia', primeiroContatoTime:'17:36', consultorTime:null, scores:[1.0,'N/A','N/A',5.0,'N/A','N/A','N/A','N/A','N/A','N/A']},
+  {timestamp:'2026-08-19 08:37:55', empresa:'Armac',         vendedor:'Lorivaldo Souza',                 tipo:'Locação',   isArmac:true,  loja:null, primeiroContatoTime:'09:28', consultorTime:'09:28', scores:[3.0,3.0,5.0,5.0,2.0,4.0,4.0,5.0,'N/A','N/A']},
+  {timestamp:'2026-08-26 17:21:42', empresa:'Armac',         vendedor:'Allan - Feira de Santana/BA',     tipo:'Seminovos', isArmac:true,  loja:'Feira de Santana/BA', primeiroContatoTime:'11:50', consultorTime:'13:29', scores:[4.0,4.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0]},
 ];
 
 let allResponses = EMBEDDED_RESPONSES.slice();
@@ -622,6 +649,82 @@ function formatDate(ts){
   const d = new Date(ts.replace(' ','T'));
   if(isNaN(d)) return ts;
   return d.toLocaleString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+/* Gap Primeiro Contato → Consultor: melhor esforço, só calcula se os dois
+   campos vierem em formato HH:MM reconhecível e no mesmo dia (o formulário
+   não registra data, só hora — gaps que atravessam a virada do dia não são
+   calculados automaticamente, mas os horários brutos continuam exibidos). */
+/* Aceita dois formatos no campo de horário:
+   - "DD/MM HH:MM" (ou "DD/MM/AAAA HH:MM") — com data, permite calcular gaps
+     de qualquer tamanho, mesmo atravessando dias.
+   - "HH:MM" — só hora (formato antigo/retrocompatível), só permite calcular
+     gap quando os dois horários da mesma linha caem no mesmo dia. */
+function parseDateTime(s){
+  if(!s) return null;
+  const str = String(s).trim();
+  const withDate = str.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\s+(\d{1,2})[:h](\d{2})/);
+  if(withDate){
+    const day = parseInt(withDate[1],10), month = parseInt(withDate[2],10)-1;
+    let year = withDate[3] ? parseInt(withDate[3],10) : 2026;
+    if(year < 100) year += 2000;
+    const hour = parseInt(withDate[4],10), min = parseInt(withDate[5],10);
+    if(month<0||month>11||day<1||day>31||hour>23||min>59) return null;
+    return {ms: new Date(year, month, day, hour, min).getTime(), hasDate: true};
+  }
+  const timeOnly = str.match(/^(\d{1,2})[:h](\d{2})/);
+  if(timeOnly){
+    const h = parseInt(timeOnly[1],10), min = parseInt(timeOnly[2],10);
+    if(h>23 || min>59) return null;
+    return {ms: h*60+min, hasDate: false};
+  }
+  return null;
+}
+function formatGap(totalMin){
+  const d = Math.floor(totalMin/1440);
+  const h = Math.floor((totalMin%1440)/60);
+  const m = totalMin%60;
+  const parts = [];
+  if(d>0) parts.push(`${d}d`);
+  if(h>0) parts.push(`${h}h`);
+  if(d===0 && m>0) parts.push(`${m}min`);
+  return parts.length ? parts.join(' ') : '0min';
+}
+function extraInfoHtml(r){
+  const hasLoja = r.loja && r.loja !== 'N/A';
+  const hasPrimeiro = r.primeiroContatoTime && r.primeiroContatoTime !== 'N/A';
+  const hasConsultor = r.consultorTime && r.consultorTime !== 'N/A';
+  if(!hasLoja && !hasPrimeiro && !hasConsultor) return '';
+
+  let gapHtml = '';
+  if(r.gapNote){
+    gapHtml = `<div>Gap 1º Contato → Consultor: <b style="color:#D6473F">${r.gapNote}</b></div>`;
+  } else {
+    const primeiro = parseDateTime(r.primeiroContatoTime), consultor = parseDateTime(r.consultorTime);
+    if(primeiro!==null && consultor!==null){
+      if(primeiro.hasDate && consultor.hasDate){
+        // ambos com data: cálculo exato, mesmo atravessando dias
+        const gapMin = Math.round((consultor.ms - primeiro.ms) / 60000);
+        if(gapMin >= 0){
+          gapHtml = `<div>Gap 1º Contato → Consultor: <b style="color:${gapMin>60?'#D6473F':'#DB9A1F'}">${formatGap(gapMin)}</b></div>`;
+        } else {
+          gapHtml = `<div style="color:var(--muted); font-style:italic;">Datas informadas indicam consultor respondendo antes do 1º contato — confira o preenchimento</div>`;
+        }
+      } else if(!primeiro.hasDate && !consultor.hasDate && consultor.ms>=primeiro.ms){
+        // formato antigo (só hora), só funciona no mesmo dia
+        gapHtml = `<div>Gap 1º Contato → Consultor: <b style="color:${(consultor.ms-primeiro.ms)>60?'#D6473F':'#DB9A1F'}">${formatGap(consultor.ms-primeiro.ms)}</b></div>`;
+      } else {
+        gapHtml = `<div style="color:var(--muted); font-style:italic;">Gap não calculado — preencha com data (ex: 19/08 17:24) para comparar horários em dias diferentes</div>`;
+      }
+    }
+  }
+
+  return `<div class="mini-crit" style="border-top:1px dashed var(--border); margin-top:8px; padding-top:8px;">
+    ${hasLoja ? `<div>Loja: <b>${r.loja}</b></div>` : ''}
+    ${hasPrimeiro ? `<div>Primeiro Contato: <b>${r.primeiroContatoTime}</b></div>` : ''}
+    ${hasConsultor ? `<div>Resposta Consultor: <b>${r.consultorTime}</b></div>` : ''}
+    ${gapHtml}
+  </div>`;
 }
 
 /* ---------- Render: Gauge ---------- */
@@ -909,7 +1012,8 @@ function renderTable(){
       const isNA = parseScore(raw) === null;
       return `<div>${c.label}: <b style="${isNA?'color:#8A90A0':''}">${isNA?'N/A':raw}</b></div>`;
     }).join('');
-    detail.innerHTML = `<td colspan="12"><div class="mini-crit">${critHtml}</div></td>`;
+    const extraHtml = extraInfoHtml(r);
+    detail.innerHTML = `<td colspan="12"><div class="mini-crit">${critHtml}</div>${extraHtml}</td>`;
     body.appendChild(detail);
   });
 
@@ -952,6 +1056,7 @@ function setActiveTab(tab){
 /* ---------- Filtros (Armac/Concorrentes + Empresa e Vendedor, multi-seleção) ---------- */
 let selectedEmpresas = new Set();
 let selectedVendedores = new Set();
+let selectedLojas = new Set();
 
 function uniqueSorted(arr){
   return [...new Set(arr.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
@@ -963,7 +1068,7 @@ function renderFilterOptions(containerId, options, selectedSet, kind, scoped){
   el.innerHTML = options.map(opt=>{
     const safeId = kind+'-opt-'+opt.replace(/[^a-zA-Z0-9]/g,'_');
     const checked = selectedSet.has(opt) ? 'checked' : '';
-    const n = scoped.filter(r => (kind==='empresa' ? r.empresa : r.vendedor) === opt).length;
+    const n = scoped.filter(r => (kind==='empresa' ? r.empresa : kind==='vendedor' ? r.vendedor : r.loja) === opt).length;
     return `<label class="filter-option" for="${safeId}">
       <input type="checkbox" id="${safeId}" data-kind="${kind}" data-value="${opt.replace(/"/g,'&quot;')}" ${checked}>
       <span class="opt-label">${opt}</span><span class="count">${n}</span>
@@ -974,16 +1079,20 @@ function renderFilterOptions(containerId, options, selectedSet, kind, scoped){
 function updateFilterToggleLabels(){
   const empresaVal = document.getElementById('empresaToggleValue');
   const vendedorVal = document.getElementById('vendedorToggleValue');
+  const lojaVal = document.getElementById('lojaToggleValue');
   empresaVal.textContent = selectedEmpresas.size === 0 ? 'Todas'
     : selectedEmpresas.size === 1 ? [...selectedEmpresas][0]
     : selectedEmpresas.size + ' selecionadas';
   vendedorVal.textContent = selectedVendedores.size === 0 ? 'Todos'
     : selectedVendedores.size === 1 ? [...selectedVendedores][0]
     : selectedVendedores.size + ' selecionados';
+  lojaVal.textContent = selectedLojas.size === 0 ? 'Todas'
+    : selectedLojas.size === 1 ? [...selectedLojas][0]
+    : selectedLojas.size + ' selecionadas';
 
   const summary = document.getElementById('filterSummary');
   const total = getTabScopedResponses().length, showing = responses.length;
-  const hasFilter = selectedEmpresas.size>0 || selectedVendedores.size>0 || armacOnly || concorrenteOnly;
+  const hasFilter = selectedEmpresas.size>0 || selectedVendedores.size>0 || selectedLojas.size>0 || armacOnly || concorrenteOnly;
   summary.innerHTML = hasFilter
     ? `Mostrando ${showing} de ${total} respostas <button type="button" class="filter-clear-all" id="clearAllFilters">Limpar filtros</button>`
     : `Mostrando todas as ${total} respostas`;
@@ -996,6 +1105,7 @@ function populateFilters(){
   const scoped = getTabScopedResponses();
   renderFilterOptions('empresaOptions', uniqueSorted(scoped.map(r=>r.empresa)), selectedEmpresas, 'empresa', scoped);
   renderFilterOptions('vendedorOptions', uniqueSorted(scoped.map(r=>r.vendedor)), selectedVendedores, 'vendedor', scoped);
+  renderFilterOptions('lojaOptions', uniqueSorted(scoped.map(r=>r.loja)), selectedLojas, 'loja', scoped);
   updateFilterToggleLabels();
   updateTabCounts();
 }
@@ -1004,6 +1114,7 @@ function applyFilters(){
   responses = getTabScopedResponses().filter(r =>
     (selectedEmpresas.size===0 || selectedEmpresas.has(r.empresa)) &&
     (selectedVendedores.size===0 || selectedVendedores.has(r.vendedor)) &&
+    (selectedLojas.size===0 || selectedLojas.has(r.loja)) &&
     (!armacOnly || r.isArmac) &&
     (!concorrenteOnly || !r.isArmac)
   );
@@ -1019,7 +1130,7 @@ function toggleDropdown(which){
   if(willOpen){ panel.classList.add('open'); btn.classList.add('open'); }
 }
 function closeAllDropdowns(){
-  ['empresa','vendedor'].forEach(k=>{
+  ['empresa','vendedor','loja'].forEach(k=>{
     document.getElementById(k+'Panel').classList.remove('open');
     document.getElementById(k+'Toggle').classList.remove('open');
   });
@@ -1047,6 +1158,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   document.getElementById('empresaToggle').addEventListener('click', (e)=>{ e.stopPropagation(); toggleDropdown('empresa'); });
   document.getElementById('vendedorToggle').addEventListener('click', (e)=>{ e.stopPropagation(); toggleDropdown('vendedor'); });
+  document.getElementById('lojaToggle').addEventListener('click', (e)=>{ e.stopPropagation(); toggleDropdown('loja'); });
 
   document.getElementById('empresaPanel').addEventListener('click', (e)=>{
     e.stopPropagation();
@@ -1078,9 +1190,24 @@ document.addEventListener('DOMContentLoaded', ()=>{
     }
   });
 
+  document.getElementById('lojaPanel').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const action = e.target.closest('.filter-action');
+    if(action){
+      if(action.dataset.action==='all') uniqueSorted(getTabScopedResponses().map(r=>r.loja)).forEach(v=>selectedLojas.add(v));
+      else selectedLojas.clear();
+      applyFilters(); populateFilters(); return;
+    }
+    if(e.target.matches('input[type=checkbox]')){
+      const v = e.target.dataset.value;
+      if(e.target.checked) selectedLojas.add(v); else selectedLojas.delete(v);
+      applyFilters(); updateFilterToggleLabels();
+    }
+  });
+
   document.body.addEventListener('click', (e)=>{
     if(e.target.id === 'clearAllFilters'){
-      selectedEmpresas.clear(); selectedVendedores.clear();
+      selectedEmpresas.clear(); selectedVendedores.clear(); selectedLojas.clear();
       armacOnly = false; concorrenteOnly = false;
       applyFilters(); populateFilters();
     }
@@ -1113,8 +1240,9 @@ function parseCSV(text){
 }
 
 // Converte as linhas do CSV (mesmas colunas do formulário: Carimbo, Empresa,
-// Nome do Vendedor, 10 critérios, Informe a operação, Loja pertence a ARMAC?)
-// para o formato usado pelo painel.
+// Nome do Vendedor, 10 critérios, Informe a operação, Loja pertence a ARMAC?,
+// Loja, Horário Primeiro Contato, Horário Consultor) para o formato usado pelo painel.
+// Compatível com planilhas antigas (sem as 3 colunas novas) e novas.
 function csvRowsToResponses(rows){
   if(!rows.length) return [];
   const body = rows.slice(1); // pula cabeçalho
@@ -1125,6 +1253,9 @@ function csvRowsToResponses(rows){
     scores: r.slice(3, 13),
     tipo: (r[13]||'').trim(),
     isArmac: /^sim/i.test((r[14]||'').trim()),
+    loja: (r[15]||'').trim() || null,
+    primeiroContatoTime: (r[16]||'').trim() || null,
+    consultorTime: (r[17]||'').trim() || null,
   }));
 }
 
