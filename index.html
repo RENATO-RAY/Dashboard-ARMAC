@@ -504,6 +504,7 @@
             <th class="sortable" data-key="timestamp">Data / Hora<span class="sort-arrow">⇅</span></th>
             <th class="sortable" data-key="empresa">Empresa<span class="sort-arrow">⇅</span></th>
             <th class="sortable" data-key="vendedor">Vendedor<span class="sort-arrow">⇅</span></th>
+            <th class="sortable" data-key="loja">Loja<span class="sort-arrow">⇅</span></th>
             <th class="sortable" data-key="tipo">Tipo<span class="sort-arrow">⇅</span></th>
             <th class="sortable" data-key="Tempo de Resposta">Tempo Resp.<span class="sort-arrow">⇅</span></th>
             <th class="sortable" data-key="Facilidade e Condução">Facilidade<span class="sort-arrow">⇅</span></th>
@@ -583,14 +584,14 @@ const EMBEDDED_RESPONSES = [
   {timestamp:'2026-08-14 16:19:26', empresa:'Vamos Locação', vendedor:'Não informado',                   tipo:'Locação',   isArmac:false, loja:null, primeiroContatoTime:'12/08 16:34', consultorTime:'12/08 16:34', scores:[1.5,1.5,3.0,3.0,3.0,3.0,2.5,2.5,1.0,1.0]},
   {timestamp:'2026-08-14 16:22:00', empresa:'Localiza',      vendedor:'Rafaela',                         tipo:'Seminovos', isArmac:false, loja:null, primeiroContatoTime:'13/08 09:02', consultorTime:null, scores:[1.0,1.0,1.5,1.5,1.0,1.0,2.5,2.5,1.0,1.0]},
   {timestamp:'2026-08-19 08:28:41', empresa:'Armac',         vendedor:'Mauro Ferreira',                  tipo:'Locação',   isArmac:true,  loja:null, primeiroContatoTime:'17:24', consultorTime:'13:45', gapNote:'~44h (Mauro só respondeu 2 dias depois)', scores:[1.0,1.0,3.0,2.0,4.0,5.0,3.0,2.0,'N/A',1.0]},
-  {timestamp:'2026-08-19 08:29:59', empresa:'Armac',         vendedor:'São José dos Campos (Luciana→Sheila)', tipo:'Locação',   isArmac:true,  loja:'São José dos Campos', primeiroContatoTime:'12:38', consultorTime:'12:38', scores:[1.0,1.0,4.0,5.0,2.0,3.0,2.0,4.0,2.0,1.0]},
+  {timestamp:'2026-08-19 08:29:59', empresa:'Armac',         vendedor:'São José dos Campos (Luciana→Sheila)', tipo:'Locação',   isArmac:true,  loja:'São José dos Campos/SP', primeiroContatoTime:'12:38', consultorTime:'12:38', scores:[1.0,1.0,4.0,5.0,2.0,3.0,2.0,4.0,2.0,1.0]},
   {timestamp:'2026-08-19 17:24:00', empresa:'Tracbel',       vendedor:'Marcos',                          tipo:'Seminovos', isArmac:false, loja:null, primeiroContatoTime:null, consultorTime:null, scores:[5.0,5.0,5.0,5.0,4.0,4.0,4.0,4.0,4.0,3.0]},
   {timestamp:'2026-08-19 17:23:00', empresa:'Tracbel',       vendedor:'Bruno → Lailson',                 tipo:'Seminovos', isArmac:false, loja:null, primeiroContatoTime:'17:23', consultorTime:'10:27', gapNote:'~17h (Lailson só assumiu no dia seguinte)', scores:[5.0,4.0,5.0,2.0,1.0,2.0,3.0,4.0,1.0,1.0]},
   {timestamp:'2026-08-19 17:30:00', empresa:'Cordeiro Tratores', vendedor:'Não informado',               tipo:'Seminovos', isArmac:false, loja:null, primeiroContatoTime:null, consultorTime:null, scores:[2.0,1.0,5.0,1.0,1.0,1.0,1.0,2.0,1.0,1.0]},
-  {timestamp:'2026-08-19 08:31:45', empresa:'Armac',         vendedor:'Rodrigo - Presidente Prudente',   tipo:'Seminovos', isArmac:true,  loja:'Presidente Prudente', primeiroContatoTime:'14:17', consultorTime:'16:08', scores:[1.0,5.0,2.0,5.0,5.0,5.0,4.0,4.0,5.0,5.0]},
-  {timestamp:'2026-08-19 08:33:01', empresa:'Armac',         vendedor:'Loja - Americana',                tipo:'Locação',   isArmac:true,  loja:'Americana', primeiroContatoTime:null, consultorTime:null, scores:[1.0,'N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A']},
-  {timestamp:'2026-08-19 08:33:52', empresa:'Armac',         vendedor:'Loja - Santos',                   tipo:'Locação',   isArmac:true,  loja:'Santos', primeiroContatoTime:'08:27', consultorTime:null, scores:[2.0,'N/A',5.0,5.0,'N/A','N/A','N/A','N/A','N/A','N/A']},
-  {timestamp:'2026-08-19 08:35:10', empresa:'Armac',         vendedor:'Loja - Cotia',                    tipo:'Locação',   isArmac:true,  loja:'Cotia', primeiroContatoTime:'17:36', consultorTime:null, scores:[1.0,'N/A',5.0,5.0,'N/A','N/A','N/A','N/A','N/A','N/A']},
+  {timestamp:'2026-08-19 08:31:45', empresa:'Armac',         vendedor:'Rodrigo - Presidente Prudente',   tipo:'Seminovos', isArmac:true,  loja:'Presidente Prudente/SP', primeiroContatoTime:'14:17', consultorTime:'16:08', scores:[1.0,5.0,2.0,5.0,5.0,5.0,4.0,4.0,5.0,5.0]},
+  {timestamp:'2026-08-19 08:33:01', empresa:'Armac',         vendedor:'Loja - Americana',                tipo:'Locação',   isArmac:true,  loja:'Americana/SP', primeiroContatoTime:null, consultorTime:null, scores:[1.0,'N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A']},
+  {timestamp:'2026-08-19 08:33:52', empresa:'Armac',         vendedor:'Loja - Santos',                   tipo:'Locação',   isArmac:true,  loja:'Santos/SP', primeiroContatoTime:'08:27', consultorTime:null, scores:[2.0,'N/A',5.0,5.0,'N/A','N/A','N/A','N/A','N/A','N/A']},
+  {timestamp:'2026-08-19 08:35:10', empresa:'Armac',         vendedor:'Loja - Cotia',                    tipo:'Locação',   isArmac:true,  loja:'Cotia/SP', primeiroContatoTime:'17:36', consultorTime:null, scores:[1.0,'N/A',5.0,5.0,'N/A','N/A','N/A','N/A','N/A','N/A']},
   {timestamp:'2026-08-19 08:37:55', empresa:'Armac',         vendedor:'Lorivaldo Souza',                 tipo:'Locação',   isArmac:true,  loja:null, primeiroContatoTime:'09:28', consultorTime:'09:28', scores:[3.0,3.0,5.0,5.0,2.0,4.0,4.0,5.0,'N/A','N/A']},
   {timestamp:'2026-08-26 17:21:42', empresa:'Armac',         vendedor:'Allan - Feira de Santana/BA',     tipo:'Seminovos', isArmac:true,  loja:'Feira de Santana/BA', primeiroContatoTime:'11:50', consultorTime:'13:29', scores:[4.0,4.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0]},
   {timestamp:'2026-09-02 17:53:00', empresa:'Armac',         vendedor:'Ben-Hur → Allan',                 tipo:'Seminovos', isArmac:true,  loja:'Luís Eduardo Magalhães/BA', primeiroContatoTime:'26/08 11:42', consultorTime:'31/08 11:21', scores:[1.0,1.0,3.0,1.0,4.0,5.0,4.0,3.0,1.0,1.0]},
@@ -957,6 +958,7 @@ function getSortValue(r, key){
   if(key==='timestamp'){ const t = new Date(r.timestamp.replace(' ','T')).getTime(); return Number.isFinite(t) ? t : 0; }
   if(key==='empresa') return (r.empresa||'').toLowerCase();
   if(key==='vendedor') return (r.vendedor||'').toLowerCase();
+  if(key==='loja') return (r.loja||'').toLowerCase();
   if(key==='tipo') return (r.tipo||'').toLowerCase();
   if(key==='overall'){ const v = overallOf(r); return v===null ? -Infinity : v; }
   const v = categoryAverages(r)[key];
@@ -1010,6 +1012,7 @@ function renderTable(){
       <td style="color:var(--muted); font-size:12.5px;">${formatDate(r.timestamp)}</td>
       <td><b>${r.empresa||'—'}</b></td>
       <td style="color:var(--muted);">${r.vendedor||'—'}</td>
+      <td style="color:var(--muted); font-size:12.5px;">${r.loja||'—'}</td>
       <td><span style="font-size:11.5px; font-weight:700; color:${tipoBadgeColor};">${r.tipo||'—'}</span></td>
       <td>${chipHtml(cats['Tempo de Resposta'])}</td>
       <td>${chipHtml(cats['Facilidade e Condução'])}</td>
@@ -1030,7 +1033,7 @@ function renderTable(){
       return `<div>${c.label}: <b style="${isNA?'color:#8A90A0':''}">${isNA?'N/A':raw}</b></div>`;
     }).join('');
     const extraHtml = extraInfoHtml(r);
-    detail.innerHTML = `<td colspan="12"><div class="mini-crit">${critHtml}</div>${extraHtml}</td>`;
+    detail.innerHTML = `<td colspan="13"><div class="mini-crit">${critHtml}</div>${extraHtml}</td>`;
     body.appendChild(detail);
   });
 
