@@ -530,7 +530,7 @@
 <script>
 /* ---------- Definição dos critérios e categorias ---------- */
 const CRITERIA = [
-  {label:'Tempo de resposta ao 1º contato (SDR)', short:'Tempo 1º contato', category:'Tempo de Resposta'},
+  {label:'Tempo de resposta ao 1º contato do consultor', short:'Tempo 1º contato (consultor)', category:'Tempo de Resposta'},
   {label:'Cumprimento do prometido',              short:'Cumprimento prometido', category:'Tempo de Resposta'},
   {label:'Facilidade de contato',                 short:'Facilidade contato', category:'Facilidade e Condução'},
   {label:'Agilidade entre etapas',                short:'Agilidade etapas', category:'Facilidade e Condução'},
@@ -728,7 +728,7 @@ function extraInfoHtml(r){
 
   let gapHtml = '';
   if(r.gapNote){
-    gapHtml = `<div>Gap 1º Contato → Consultor: <b style="color:#D6473F">${r.gapNote}</b></div>`;
+    gapHtml = `<div>Tempo até o 1º contato do consultor: <b style="color:#D6473F">${r.gapNote}</b></div>`;
   } else {
     const primeiro = parseDateTime(r.primeiroContatoTime), consultor = parseDateTime(r.consultorTime);
     if(primeiro!==null && consultor!==null){
@@ -736,13 +736,13 @@ function extraInfoHtml(r){
         // ambos com data: cálculo exato, mesmo atravessando dias
         const gapMin = Math.round((consultor.ms - primeiro.ms) / 60000);
         if(gapMin >= 0){
-          gapHtml = `<div>Gap 1º Contato → Consultor: <b style="color:${gapMin>60?'#D6473F':'#DB9A1F'}">${formatGap(gapMin)}</b></div>`;
+          gapHtml = `<div>Tempo até o 1º contato do consultor: <b style="color:${gapMin>60?'#D6473F':'#DB9A1F'}">${formatGap(gapMin)}</b></div>`;
         } else {
-          gapHtml = `<div style="color:var(--muted); font-style:italic;">Datas informadas indicam consultor respondendo antes do 1º contato — confira o preenchimento</div>`;
+          gapHtml = `<div style="color:var(--muted); font-style:italic;">Datas informadas indicam o consultor contatando antes de o cliente iniciar o contato — confira o preenchimento</div>`;
         }
       } else if(!primeiro.hasDate && !consultor.hasDate && consultor.ms>=primeiro.ms){
         // formato antigo (só hora), só funciona no mesmo dia
-        gapHtml = `<div>Gap 1º Contato → Consultor: <b style="color:${(consultor.ms-primeiro.ms)>60?'#D6473F':'#DB9A1F'}">${formatGap(consultor.ms-primeiro.ms)}</b></div>`;
+        gapHtml = `<div>Tempo até o 1º contato do consultor: <b style="color:${(consultor.ms-primeiro.ms)>60?'#D6473F':'#DB9A1F'}">${formatGap(consultor.ms-primeiro.ms)}</b></div>`;
       } else {
         gapHtml = `<div style="color:var(--muted); font-style:italic;">Gap não calculado — preencha com data (ex: 19/08 17:24) para comparar horários em dias diferentes</div>`;
       }
@@ -751,8 +751,8 @@ function extraInfoHtml(r){
 
   return `<div class="mini-crit" style="border-top:1px dashed var(--border); margin-top:8px; padding-top:8px;">
     ${hasLoja ? `<div>Loja: <b>${r.loja}</b></div>` : ''}
-    ${hasPrimeiro ? `<div>Primeiro Contato: <b>${r.primeiroContatoTime}</b></div>` : ''}
-    ${hasConsultor ? `<div>Resposta Consultor: <b>${r.consultorTime}</b></div>` : ''}
+    ${hasPrimeiro ? `<div>Cliente iniciou o contato: <b>${r.primeiroContatoTime}</b></div>` : ''}
+    ${hasConsultor ? `<div>1º contato do consultor: <b>${r.consultorTime}</b></div>` : ''}
     ${gapHtml}
   </div>`;
 }
@@ -1063,7 +1063,7 @@ function renderTable(){
 function renderLastUpdated(){
   const el = document.getElementById('lastUpdated');
   if(!responses.length){ el.textContent = 'sem respostas'; return; }
-  const last = responses[responses.length-1].timestamp;
+  const last = responses.reduce((m,r)=> (r.timestamp > m ? r.timestamp : m), responses[0].timestamp);
   el.textContent = 'Última resposta: ' + formatDate(last);
 }
 
