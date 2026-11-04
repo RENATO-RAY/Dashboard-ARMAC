@@ -386,6 +386,10 @@
     <button type="button" class="tab-btn active" data-tab="Geral" role="tab">Geral <span class="tab-count" id="tabCountGeral"></span></button>
     <button type="button" class="tab-btn" data-tab="Locação" role="tab">Locação <span class="tab-count" id="tabCountLocacao"></span></button>
     <button type="button" class="tab-btn" data-tab="Seminovos" role="tab">Seminovos <span class="tab-count" id="tabCountSeminovos"></span></button>
+    <button type="button" class="tab-btn" data-tab="Induzidos" role="tab">Induzidos (CRM) <span class="tab-count" id="tabCountInduzidos"></span></button>
+  </div>
+  <div id="induzidoNote" style="display:none; margin:14px 0 4px; padding:12px 16px; border-left:4px solid #DB9A1F; background:#FFF8E6; border-radius:8px; font-size:13px; line-height:1.5; color:#5A4A1A;">
+    <b>Contatos induzidos pelo CRM.</b> Negócios criados no CRM pela Armac para que a filial procurasse o cliente. O tempo até o 1º contato do consultor (C1) não é comparável com as demais abordagens, porque aqui o relógio começa no CRM e não na mensagem do cliente; por isso C1 fica sem nota. Estes contatos entram na média da aba Geral (exceto no critério C1, que fica sem nota) e não entram nas médias das abas Locação e Seminovos.
   </div>
 
   <div class="filters-bar">
@@ -579,7 +583,7 @@ const SHEET_CSV_URL = ''; // ex.: 'https://docs.google.com/spreadsheets/d/e/XXXX
      sem precisar reabrir o formulário. */
 const EMBEDDED_RESPONSES = [
   {timestamp:'2026-08-14 16:09:51', empresa:'Sotreq',        vendedor:'Gabriel',                         tipo:'Locação',   isArmac:false, loja:null, primeiroContatoTime:'11/08 09:31', consultorTime:'12/08 14:44', scores:[3.5,3.5,3.5,3.5,5.0,5.0,4.5,4.5,4.5,4.5]},
-  {timestamp:'2026-08-14 16:11:43', empresa:'Mills',         vendedor:'Débora',                          tipo:'Locação',   isArmac:false, loja:null, primeiroContatoTime:'13/08 15:01', consultorTime:null, scores:[2.5,2.5,3.0,3.0,3.5,3.5,5.0,5.0,1.0,1.0]},
+  {timestamp:'2026-08-14 16:11:43', empresa:'Mills',         vendedor:'Débora',                          tipo:'Locação',   isArmac:false, loja:null, primeiroContatoTime:'13/08 15:01', consultorTime:null, scores:[2.0,1.0,5.0,1.0,3.0,4.0,5.0,5.0,'N/A',1.0]},
   {timestamp:'2026-08-14 16:17:43', empresa:'Brasif',        vendedor:'Jair',                            tipo:'Seminovos', isArmac:false, loja:null, primeiroContatoTime:'11/08 14:31', consultorTime:'11/08 14:31', scores:[2.5,2.5,3.0,3.0,3.0,3.0,4.0,4.0,1.0,1.0]},
   {timestamp:'2026-08-14 16:19:26', empresa:'Vamos Locação', vendedor:'Não informado',                   tipo:'Locação',   isArmac:false, loja:null, primeiroContatoTime:'12/08 16:34', consultorTime:'12/08 16:34', scores:[1.5,1.5,3.0,3.0,3.0,3.0,2.5,2.5,1.0,1.0]},
   {timestamp:'2026-08-14 16:22:00', empresa:'Localiza',      vendedor:'Rafaela',                         tipo:'Seminovos', isArmac:false, loja:null, primeiroContatoTime:'13/08 09:02', consultorTime:null, scores:[1.0,1.0,1.5,1.5,1.0,1.0,2.5,2.5,1.0,1.0]},
@@ -593,7 +597,7 @@ const EMBEDDED_RESPONSES = [
   {timestamp:'2026-08-19 08:33:52', empresa:'Armac',         vendedor:'Loja - Santos',                   tipo:'Locação',   isArmac:true,  loja:'Santos/SP', primeiroContatoTime:'08:27', consultorTime:null, scores:[2.0,'N/A',5.0,5.0,'N/A','N/A','N/A','N/A','N/A','N/A']},
   {timestamp:'2026-08-19 08:35:10', empresa:'Armac',         vendedor:'Loja - Cotia',                    tipo:'Locação',   isArmac:true,  loja:'Cotia/SP', primeiroContatoTime:'17:36', consultorTime:null, scores:[1.0,'N/A',5.0,5.0,'N/A','N/A','N/A','N/A','N/A','N/A']},
   {timestamp:'2026-08-19 08:37:55', empresa:'Armac',         vendedor:'Lorivaldo Souza',                 tipo:'Locação',   isArmac:true,  loja:null, primeiroContatoTime:'09:28', consultorTime:'09:28', scores:[3.0,3.0,5.0,5.0,2.0,4.0,4.0,5.0,'N/A','N/A']},
-  {timestamp:'2026-08-26 17:21:42', empresa:'Armac',         vendedor:'Allan - Feira de Santana/BA',     tipo:'Seminovos', isArmac:true,  loja:'Feira de Santana/BA', primeiroContatoTime:'11:50', consultorTime:'13:29', scores:[4.0,4.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0]},
+  {timestamp:'2026-08-26 17:21:42', empresa:'Armac',         vendedor:'Allan - Feira de Santana/BA',     tipo:'Seminovos', isArmac:true,  loja:'Feira de Santana/BA', primeiroContatoTime:'11:50', consultorTime:'13:29', scores:[3.0,4.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0]},
   {timestamp:'2026-09-02 17:53:00', empresa:'Armac',         vendedor:'Ben-Hur → Allan',                 tipo:'Seminovos', isArmac:true,  loja:'Luís Eduardo Magalhães/BA', primeiroContatoTime:'26/08 11:42', consultorTime:'31/08 11:21', scores:[1.0,1.0,3.0,1.0,4.0,5.0,4.0,3.0,1.0,1.0]},
   {timestamp:'2026-09-16 16:09:00', empresa:'Armac',         vendedor:'Suzana → Luiz Eduardo',           tipo:'Seminovos', isArmac:true,  loja:'Eusébio/CE', primeiroContatoTime:'26/08 14:40', consultorTime:'02/09 15:45', scores:[1.0,3.0,3.0,5.0,5.0,5.0,4.0,5.0,4.0,5.0]},
   {timestamp:'2026-09-03 17:19:00', empresa:'Venamaq',       vendedor:'André',                           tipo:'Locação',   isArmac:false, loja:null, primeiroContatoTime:'03/09 17:19', consultorTime:'03/09 17:19', scores:[5.0,4.0,5.0,4.0,4.0,5.0,4.0,5.0,5.0,5.0]},
@@ -603,26 +607,35 @@ const EMBEDDED_RESPONSES = [
   {timestamp:'2026-09-03 17:18:00', empresa:'Grupo Emtel',   vendedor:'Theo (bot) → equipe',             tipo:'Locação',   isArmac:false, loja:null, primeiroContatoTime:'03/09 17:18', consultorTime:'04/09 08:18', scores:[3.0,2.0,5.0,3.0,4.0,4.0,3.0,4.0,2.0,1.0]},
   {timestamp:'2026-09-03 17:33:00', empresa:'Macromaq',      vendedor:'Giuliana',                        tipo:'Locação',   isArmac:false, loja:null, primeiroContatoTime:'03/09 17:18', consultorTime:'03/09 17:33', scores:[4.0,1.0,5.0,1.0,2.0,2.0,3.0,3.0,1.0,1.0]},
   {timestamp:'2026-09-04 17:38:00', empresa:'VRental',       vendedor:'Priscila Silva',                  tipo:'Locação',   isArmac:false, loja:null, primeiroContatoTime:'04/09 17:17', consultorTime:'04/09 17:38', scores:[4.0,2.0,5.0,4.0,5.0,3.0,4.0,4.0,'N/A',1.0]},
-  {timestamp:'2026-09-11 10:03:00', empresa:'Escad',         vendedor:'Pamela',                          tipo:'Locação',   isArmac:false, loja:null, primeiroContatoTime:'11/09 10:03', consultorTime:'11/09 10:03', scores:[3.0,2.0,5.0,3.0,5.0,3.0,4.0,4.0,5.0,3.0]},
+  {timestamp:'2026-09-11 10:03:00', empresa:'Escad',         vendedor:'Pamela',                          tipo:'Locação',   isArmac:false, loja:null, primeiroContatoTime:'11/09 10:03', consultorTime:'11/09 10:03', scores:[1.0,2.0,5.0,3.0,5.0,3.0,4.0,4.0,5.0,3.0]},
   {timestamp:'2026-09-11 08:50:00', empresa:'Mills',         vendedor:'Talita → Raquel → Talita',        tipo:'Locação',   isArmac:false, loja:null, primeiroContatoTime:'11/09 08:50', consultorTime:'11/09 10:02', scores:[5.0,3.0,5.0,4.0,2.0,2.0,4.0,4.0,1.0,1.0]},
   {timestamp:'2026-09-11 08:52:00', empresa:'MAQMOB',        vendedor:'Não identificado',                tipo:'Seminovos', isArmac:false, loja:null, primeiroContatoTime:'11/09 08:52', consultorTime:'16/09 09:45', scores:[1.0,1.0,5.0,1.0,1.0,1.0,2.0,3.0,1.0,1.0]},
   {timestamp:'2026-09-11 08:53:00', empresa:'Mason',         vendedor:'Mason (triagem) → Caio Faetti',   tipo:'Seminovos', isArmac:false, loja:null, primeiroContatoTime:'11/09 08:53', consultorTime:'11/09 09:27', scores:[5.0,1.0,5.0,5.0,5.0,5.0,4.0,4.0,1.0,1.0]},
   {timestamp:'2026-10-06 10:26:00', empresa:'New Holland Construction', vendedor:'Bot → Ludmila → Gustavo', tipo:'Seminovos', isArmac:false, loja:null, primeiroContatoTime:'11/09 09:08', consultorTime:'23/09 09:31', scores:[1.0,1.0,5.0,2.0,3.0,3.0,3.0,4.0,3.0,2.0]},
   {timestamp:'2026-09-28 09:35:00', empresa:'Grupo Emtel',   vendedor:'Theo (bot) — 2ª abordagem',       tipo:'Locação',   isArmac:false, loja:null, primeiroContatoTime:'24/09 11:34', consultorTime:null, scores:[4.0,1.0,5.0,1.0,2.0,2.0,2.0,3.0,1.0,1.0]},
   {timestamp:'2026-10-01 16:31:00', empresa:'Armac',         vendedor:'Fábia Silva (SDR) → consultor Santa Rita', tipo:'Seminovos', isArmac:true,  loja:'Santa Rita/RS', primeiroContatoTime:'28/09 10:04', consultorTime:'29/09 20:57', scores:[1.0,2.0,4.0,3.0,2.0,3.0,2.0,4.0,2.0,1.0]},
-  {timestamp:'2026-10-05 18:00:00', empresa:'Armac',         vendedor:'Atendente da loja → Mariana',     tipo:'Seminovos', isArmac:true,  loja:'São José dos Pinhais/PR', primeiroContatoTime:'02/10 17:17', consultorTime:'02/10 17:27', scores:[5.0,4.0,5.0,4.0,4.0,4.0,4.0,5.0,5.0,4.0]},
+  {timestamp:'2026-10-19 15:51:00', empresa:'Armac',         vendedor:'Atendente da loja → Mariana',     tipo:'Seminovos', isArmac:true,  loja:'São José dos Pinhais/PR', primeiroContatoTime:'02/10 17:17', consultorTime:'02/10 17:27', scores:[5.0,4.0,5.0,4.0,4.0,4.0,4.0,5.0,5.0,5.0]},
   {timestamp:'2026-10-07 15:48:00', empresa:'Armac',         vendedor:'Atendente da loja → Alessandra (proposta) · Ana Pacheco (follow-up)', tipo:'Locação', isArmac:true,  loja:'Santa Rita/RS', primeiroContatoTime:null, consultorTime:'05/10 08:17', gapNote:'~3 dias (contato direto na loja na sexta 02/10; 1ª resposta na segunda 05/10, 08:17)', scores:[2.0,4.0,4.0,4.0,3.0,3.0,4.0,4.0,4.0,4.0]},
   {timestamp:'2026-10-05 16:34:00', empresa:'Armac',         vendedor:'Alex Sander',                    tipo:'Seminovos', isArmac:true,  loja:'Pouso Alegre/MG', primeiroContatoTime:'02/10 15:03', consultorTime:'02/10 15:03', scores:[5.0,4.0,5.0,4.0,4.0,4.0,4.0,5.0,4.0,4.0]},
   {timestamp:'2026-10-05 12:45:00', empresa:'Armac',         vendedor:'Emerson da Silva',                tipo:'Seminovos', isArmac:true,  loja:'Cuiabá/MT', primeiroContatoTime:'02/10 15:37', consultorTime:'02/10 15:48', scores:[4.0,4.0,5.0,4.0,2.0,4.0,3.0,4.0,3.0,2.0]},
   {timestamp:'2026-10-13 14:57:00', empresa:'Armac',         vendedor:'Thiago Elias',                   tipo:'Seminovos', isArmac:true,  loja:'Uberlândia/MG', primeiroContatoTime:null, consultorTime:null, gapNote:'12 min até o consultor (SLA informado no documento)', scores:[4.0,4.0,5.0,4.0,3.0,4.0,3.0,4.0,4.0,3.0]},
   {timestamp:'2026-10-14 08:45:00', empresa:'Armac',         vendedor:'Mariana Saracho',                 tipo:'Seminovos', isArmac:true,  loja:'Rondonópolis/MT', primeiroContatoTime:'02/10 16:37', consultorTime:'02/10 16:38', scores:[5.0,3.0,5.0,3.0,2.0,3.0,3.0,3.0,4.0,3.0]},
-  {timestamp:'2026-10-15 13:58:00', empresa:'Armac',         vendedor:'Guilherme Blem',                  tipo:'Seminovos', isArmac:true,  loja:'Palmas/TO', primeiroContatoTime:'02/10 17:18', consultorTime:'06/10 10:20', scores:[1.0,3.0,3.0,4.0,2.0,3.0,4.0,4.0,3.0,4.0]},
+  {timestamp:'2026-10-20 12:00:00', empresa:'Armac',         vendedor:'Guilherme Blem',                  tipo:'Seminovos', isArmac:true,  loja:'Palmas/TO', primeiroContatoTime:'02/10 17:18', consultorTime:'06/10 10:20', scores:[1.0,3.0,3.0,4.0,2.0,3.0,4.0,4.0,3.0,5.0]},
   {timestamp:'2026-10-14 11:41:00', empresa:'Armac',         vendedor:'Não identificado',                tipo:'Seminovos', isArmac:true,  loja:'Ariquemes/RO', primeiroContatoTime:'02/10 17:18', consultorTime:null, scores:[1.0,'N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A','N/A']},
   {timestamp:'2026-10-19 13:39:00', empresa:'Armac',         vendedor:'Joscelio → Marcos (2ª abordagem)', tipo:'Locação',   isArmac:true,  loja:'Americana/SP', primeiroContatoTime:'14/10 08:08', consultorTime:'14/10 12:02', scores:[3.0,3.0,4.0,4.0,4.0,3.0,4.0,4.0,'N/A',2.0]},
   {timestamp:'2026-10-16 17:38:00', empresa:'Armac',         vendedor:'Ricardo Medeiros',                tipo:'Seminovos', isArmac:true,  loja:'Campo Grande/MS', primeiroContatoTime:'02/10 15:15', consultorTime:'02/10 15:15', scores:[5.0,3.0,5.0,2.0,2.0,2.0,3.0,4.0,4.0,1.0]},
-  {timestamp:'2026-09-15 09:23:00', empresa:'Armac',         vendedor:'Luciana Araújo',                  tipo:'Seminovos', isArmac:true,  loja:'Rio de Janeiro/RJ', primeiroContatoTime:'14/09 10:00', consultorTime:'15/09 09:23', scores:[3.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0]},
-  {timestamp:'2026-09-15 16:23:00', empresa:'Armac',         vendedor:'Renato Holanda',                  tipo:'Seminovos', isArmac:true,  loja:'Belém/PA', primeiroContatoTime:'14/09 10:00', consultorTime:'15/09 16:23', scores:[3.0,1.0,5.0,2.0,1.0,1.0,1.0,1.0,1.0,'N/A']},
-  {timestamp:'2026-09-15 10:08:00', empresa:'Armac',         vendedor:'Ariane Silva',                    tipo:'Seminovos', isArmac:true,  loja:'Betim/MG', primeiroContatoTime:'14/09 10:00', consultorTime:'15/09 10:08', scores:[3.0,4.0,5.0,5.0,1.0,3.0,1.0,3.0,4.0,'N/A']},
+  {timestamp:'2026-10-19 16:27:00', empresa:'Armac',         vendedor:'Atendente → Saulo',              tipo:'Locação',   isArmac:true,  loja:'Serra/ES', primeiroContatoTime:'19/10 11:25', consultorTime:'19/10 14:14', scores:[3.0,4.0,4.0,4.0,3.0,2.0,3.0,4.0,3.0,4.0]},
+  {timestamp:'2026-10-23 16:31:00', empresa:'Armac',         vendedor:'Carlos', tipo:'Locação', isArmac:true, induzido:true, loja:'Cascavel/PR', primeiroContatoTime:null, consultorTime:'23/10 07:56', gapNote:'Contato induzido: o consultor procurou o cliente a partir de um negócio criado no CRM (horário de criação não informado)', scores:['N/A','N/A',5.0,5.0,2.0,'N/A',2.0,4.0,4.0,2.0]},
+  {timestamp:'2026-10-23 16:41:00', empresa:'Armac',         vendedor:'Cristian → Leonardo', tipo:'Locação', isArmac:true, induzido:true, loja:'Mato Grosso/MT', primeiroContatoTime:null, consultorTime:'23/10 09:01', gapNote:'Contato induzido: o consultor procurou o cliente a partir de um negócio criado no CRM (horário de criação não informado)', scores:['N/A','N/A',4.0,4.0,2.0,'N/A',3.0,3.0,1.0,'N/A']},
+  {timestamp:'2026-10-26 08:00:00', empresa:'Armac',         vendedor:'Diego', tipo:'Locação', isArmac:true, induzido:true, loja:'Londrina/PR', primeiroContatoTime:null, consultorTime:'23/10 07:51', gapNote:'Contato induzido: o consultor procurou o cliente a partir de um negócio criado no CRM (horário de criação não informado)', scores:['N/A','N/A',5.0,5.0,4.0,4.0,4.0,4.0,4.0,3.0]},
+  {timestamp:'2026-10-26 09:02:00', empresa:'Armac',         vendedor:'Eduardo', tipo:'Locação', isArmac:true, induzido:true, loja:'Santa Catarina/SC', primeiroContatoTime:null, consultorTime:'23/10 08:20', gapNote:'Contato induzido: o consultor procurou o cliente a partir de um negócio criado no CRM (horário de criação não informado)', scores:['N/A','N/A',5.0,5.0,3.0,'N/A',3.0,4.0,4.0,4.0]},
+  {timestamp:'2026-10-27 08:37:00', empresa:'Armac',         vendedor:'Leonardo', tipo:'Locação', isArmac:true, induzido:true, loja:'Sinop/MT', primeiroContatoTime:null, consultorTime:null, gapNote:'Contato induzido: o consultor procurou o cliente a partir de um negócio criado no CRM (horário de criação não informado)', scores:['N/A',4.0,5.0,4.0,3.0,'N/A',4.0,4.0,4.0,5.0]},
+  {timestamp:'2026-09-15 09:23:00', empresa:'Armac',         vendedor:'Luciana Araújo',                  tipo:'Seminovos', isArmac:true,  loja:'Rio de Janeiro/RJ', primeiroContatoTime:'14/09 10:00', consultorTime:'15/09 09:23', scores:[2.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0,5.0]},
+  {timestamp:'2026-09-15 16:23:00', empresa:'Armac',         vendedor:'Renato Holanda',                  tipo:'Seminovos', isArmac:true,  loja:'Belém/PA', primeiroContatoTime:'14/09 10:00', consultorTime:'15/09 16:23', scores:[1.0,1.0,5.0,2.0,1.0,1.0,1.0,1.0,1.0,'N/A']},
+  {timestamp:'2026-09-15 10:08:00', empresa:'Armac',         vendedor:'Ariane Silva',                    tipo:'Seminovos', isArmac:true,  loja:'Betim/MG', primeiroContatoTime:'14/09 10:00', consultorTime:'15/09 10:08', scores:[1.0,4.0,5.0,5.0,1.0,3.0,1.0,3.0,4.0,'N/A']},
+  {timestamp:'2026-10-21 12:00:00', empresa:'Armac',         vendedor:'Denise Alves',                    tipo:'Seminovos', isArmac:true,  loja:'Goiânia/GO', primeiroContatoTime:'02/10 16:35', consultorTime:'02/10 16:37', scores:[5.0,3.0,5.0,4.0,2.0,4.0,3.0,3.0,4.0,2.0]},
+  {timestamp:'2026-10-22 12:00:00', empresa:'Armac',         vendedor:'Guilherme Blem',                  tipo:'Seminovos', isArmac:true,  loja:'Palmas/TO', primeiroContatoTime:null, consultorTime:null, scores:[4.0,5.0,5.0,4.0,2.0,4.0,4.0,3.0,3.0,3.0]},
+  {timestamp:'2026-10-27 09:00:00', empresa:'Armac',         vendedor:'Leonardo', tipo:'Locação', isArmac:true, induzido:true, loja:'Lucas do Rio Verde/MT', primeiroContatoTime:null, consultorTime:'23/10 08:38', gapNote:'Contato induzido: o consultor procurou o cliente a partir de um negócio criado no CRM (horário de criação não informado)', scores:['N/A',4.8,3.0,4.8,4.2,3.0,3.5,2.5,4.5,4.5]},
 ];
 
 let allResponses = EMBEDDED_RESPONSES.slice();
@@ -1069,15 +1082,18 @@ function renderLastUpdated(){
 
 /* ---------- Abas (Geral / Locação / Seminovos) ---------- */
 function getTabScopedResponses(){
-  return activeTab === 'Geral' ? allResponses.slice() : allResponses.filter(r=>r.tipo===activeTab);
+  return activeTab === 'Geral' ? allResponses.slice() : (activeTab === 'Induzidos' ? allResponses.filter(r=>r.induzido) : allResponses.filter(r=>r.tipo===activeTab && !r.induzido));
 }
 function updateTabCounts(){
+  const base = allResponses.filter(r=>!r.induzido);
   document.getElementById('tabCountGeral').textContent    = '('+allResponses.length+')';
-  document.getElementById('tabCountLocacao').textContent  = '('+allResponses.filter(r=>r.tipo==='Locação').length+')';
-  document.getElementById('tabCountSeminovos').textContent= '('+allResponses.filter(r=>r.tipo==='Seminovos').length+')';
+  document.getElementById('tabCountLocacao').textContent  = '('+base.filter(r=>r.tipo==='Locação').length+')';
+  document.getElementById('tabCountSeminovos').textContent= '('+base.filter(r=>r.tipo==='Seminovos').length+')';
+  document.getElementById('tabCountInduzidos').textContent= '('+allResponses.filter(r=>r.induzido).length+')';
 }
 function setActiveTab(tab){
   activeTab = tab;
+  document.getElementById('induzidoNote').style.display = (tab==='Induzidos') ? 'block' : 'none';
   document.querySelectorAll('.tab-btn').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.tab === tab);
   });
